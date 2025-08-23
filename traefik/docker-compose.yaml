@@ -57,8 +57,8 @@ services:
             - 'traefik.http.routers.dashboard.service=api@internal'
             - 'traefik.http.routers.dashboard.tls=true'
             # TOBEMODIFIED: MIDDLEWARE NAME
-            - 'traefik.http.middlewares.dashboard-auth.basicauth.usersFile=/auth/traefik.password'
-            - 'traefik.http.routers.dashboard.middlewares=dashboard-auth@docker'
+            - 'traefik.http.middlewares.TOBEMODIFIED.basicauth.usersFile=/auth/traefik.password'
+            - 'traefik.http.routers.dashboard.middlewares=TOBEMODIFIED@docker'
 
 networks:
     traefik-network:
