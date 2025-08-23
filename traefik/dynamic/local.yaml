@@ -1,0 +1,5 @@
+# TOBEMODIFIED: CHOOSE ENABLE THIS DEVELOPMENT/PRODUCTION PURPOSE ONLY
+tls:
+    certificates:
+        - certFile: /certs/cert.pem
+          keyFile: /certs/key.pem
