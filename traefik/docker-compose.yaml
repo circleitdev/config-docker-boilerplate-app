@@ -10,6 +10,8 @@ services:
         ports:
             - '80:80'
             - '443:443'
+        environment:
+            - TZ=Asia/Jakarta
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
             - ./certs:/certs:ro
