@@ -43,7 +43,6 @@ services:
             - '--accessLog.filepath=/logs/access.log'
             - '--accessLog.filters.statusCodes=400-599'
             - '--ping=true'
-
             # TOBEMODIFIED: CHOOSE DEVELOPMENT/ENABLE THIS PRODUCTION PURPOSE ONLY, EMAIL
             - '--certificatesResolvers.leResolver.acme.email=TOBEMODIFIED'
             - '--certificatesResolvers.leResolver.acme.storage=/letsencrypt/acme.json'
