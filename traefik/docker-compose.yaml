@@ -1,5 +1,5 @@
 services:
-    traefik:
+    app:
         image: traefik:3.5.0
         container_name: traefik
         security_opt:
@@ -26,7 +26,6 @@ services:
             - '--entryPoints.web.http.redirections.entryPoint.permanent=true'
             - '--entryPoints.websecure.address=:443'
             - '--entryPoints.websecure.http.tls=true'
-            - '--entryPoints.websecure.http.tls.certResolver=leResolver'
             - '--providers.file.directory=/dynamic'
             - '--providers.docker=true'
             - '--providers.docker.exposedByDefault=false'
@@ -40,6 +39,7 @@ services:
             - '--accessLog.filters.statusCodes=400-599'
             - '--ping=true'
             # TOBEMODIFIED: CHOOSE DEVELOPMENT/ENABLE THIS PRODUCTION PURPOSE ONLY, EMAIL
+            - '--entryPoints.websecure.http.tls.certResolver=leResolver'
             - '--certificatesResolvers.leResolver.acme.email=TOBEMODIFIED'
             - '--certificatesResolvers.leResolver.acme.storage=/letsencrypt/acme.json'
             - '--certificatesResolvers.leResolver.acme.httpChallenge.entryPoint=web'
@@ -51,9 +51,8 @@ services:
             - 'traefik.http.routers.dashboard.entryPoints=websecure'
             - 'traefik.http.routers.dashboard.service=api@internal'
             - 'traefik.http.routers.dashboard.tls=true'
-            # TOBEMODIFIED: MIDDLEWARE NAME
-            - 'traefik.http.middlewares.TOBEMODIFIED.basicauth.usersFile=/auth/traefik.password'
-            - 'traefik.http.routers.dashboard.middlewares=TOBEMODIFIED@docker'
+            - 'traefik.http.middlewares.dashboard-auth.basicauth.usersFile=/auth/traefik.password'
+            - 'traefik.http.routers.dashboard.middlewares=dashboard-auth@docker'
         healthcheck:
             test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/ping >/dev/null 2>&1 || exit 1']
             interval: 30s
@@ -70,4 +69,4 @@ volumes:
 networks:
     traefik-network:
         name: traefik-network
-        external: false
+        external: true
