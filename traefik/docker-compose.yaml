@@ -2,29 +2,23 @@ services:
     traefik:
         image: traefik:3.5.0
         container_name: traefik
-        restart: unless-stopped
         security_opt:
             - no-new-privileges:true
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - ./certs:/certs:ro
+            - ./dynamic:/dynamic:ro
+            - ./auth:/auth:ro
+            - traefik-letsencrypt:/etc/traefik/letsencrypt
+            - traefik-logs:/var/log/traefik
         networks:
             - traefik-network
         ports:
             - '80:80'
             - '443:443'
-        environment:
-            - TZ=Asia/Jakarta
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-            - ./certs:/certs:ro
-            - ./dynamic:/dynamic:ro
-            - ./letsencrypt:/letsencrypt
-            - ./logs:/logs
-            - ./auth:/auth
-        healthcheck:
-            test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/ping >/dev/null 2>&1 || exit 1']
-            interval: 30s
-            timeout: 5s
-            retries: 3
-            start_period: 5s
+        env_file:
+            - ./.env
+        restart: unless-stopped
         command:
             - '--entryPoints.web.address=:80'
             - '--entryPoints.web.http.redirections.entryPoint.to=websecure'
@@ -60,6 +54,18 @@ services:
             # TOBEMODIFIED: MIDDLEWARE NAME
             - 'traefik.http.middlewares.TOBEMODIFIED.basicauth.usersFile=/auth/traefik.password'
             - 'traefik.http.routers.dashboard.middlewares=TOBEMODIFIED@docker'
+        healthcheck:
+            test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/ping >/dev/null 2>&1 || exit 1']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+volumes:
+    traefik-letsencrypt:
+        name: traefik-letsencrypt
+    traefik-logs:
+        name: traefik-logs
 
 networks:
     traefik-network:
