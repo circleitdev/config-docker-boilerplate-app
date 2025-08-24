@@ -1,1 +1,1 @@
-# config-docker-boilerplate-app v0.1.5
+# config-docker-boilerplate-app v0.1.6
