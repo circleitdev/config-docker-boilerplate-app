@@ -1,4 +1,4 @@
-# traefik v0.1.5
+# traefik v0.1.6
 
 A brief configurations for this project and its setup preparation.
 
