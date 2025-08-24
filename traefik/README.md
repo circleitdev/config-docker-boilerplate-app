@@ -1,4 +1,4 @@
-# traefik v0.1.4
+# traefik v0.1.5
 
 A brief configurations for this project and its setup preparation.
 
@@ -10,10 +10,16 @@ $ tobemodified
 
 ## Configuration
 
-replace billy needs:
+replace belly needs:
 
 ```bash
 + find stuff TOBEMODIFIED
+```
+
+replace supre needs:
+
+```bash
++ find stuff .example
 ```
 
 generate password auth for initial user:
