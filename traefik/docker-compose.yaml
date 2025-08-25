@@ -1,5 +1,5 @@
 services:
-    app:
+    traefik:
         image: traefik:3.5.0
         container_name: traefik
         security_opt:
@@ -16,8 +16,7 @@ services:
         ports:
             - '80:80'
             - '443:443'
-        env_file:
-            - ./.env
+        env_file: .env
         restart: unless-stopped
         command:
             - '--entryPoints.web.address=:80'
@@ -41,18 +40,22 @@ services:
             # TOBEMODIFIED: CHOOSE DEVELOPMENT/ENABLE THIS PRODUCTION PURPOSE ONLY, EMAIL
             - '--entryPoints.websecure.http.tls.certResolver=leResolver'
             - '--certificatesResolvers.leResolver.acme.email=TOBEMODIFIED'
-            - '--certificatesResolvers.leResolver.acme.storage=/letsencrypt/acme.json'
+            - '--certificatesResolvers.leResolver.acme.storage=/etc/traefik/letsencrypt/acme.json'
             - '--certificatesResolvers.leResolver.acme.httpChallenge.entryPoint=web'
 
         labels:
             - 'traefik.enable=true'
+            # ROUTER
+            - 'traefik.http.routers.traefik-router.entryPoints=websecure'
             # TOBEMODIFIED: DOMAIN NAME FOR TRAEFIK DASHBOARD
-            - 'traefik.http.routers.dashboard.rule=Host(`TOBEMODIFIED`)'
-            - 'traefik.http.routers.dashboard.entryPoints=websecure'
-            - 'traefik.http.routers.dashboard.service=api@internal'
-            - 'traefik.http.routers.dashboard.tls=true'
-            - 'traefik.http.middlewares.dashboard-auth.basicauth.usersFile=/auth/traefik.password'
-            - 'traefik.http.routers.dashboard.middlewares=dashboard-auth@docker'
+            - 'traefik.http.routers.traefik-router.rule=Host(`TOBEMODIFIED`)'
+            - 'traefik.http.routers.traefik-router.tls=true'
+            # MIDDLEWARE
+            - 'traefik.http.routers.traefik-router.middlewares=traefik-middleware@docker'
+            - 'traefik.http.middlewares.traefik-middleware.basicauth.usersFile=/auth/traefik.password'
+            # SERVICE
+            - 'traefik.http.routers.traefik-router.service=api@internal'
+            - 'traefik.http.services.traefik-service.loadbalancer.server.port=8080'
         healthcheck:
             test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/ping >/dev/null 2>&1 || exit 1']
             interval: 30s
