@@ -1,6 +1,6 @@
-# traefik v0.1.9
+# traefik v0.1.10
 
-A brief configurations for this project and its setup preparation.
+Category of official image / infrastructure service / first party app
 
 ## Installation
 
