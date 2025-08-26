@@ -47,12 +47,11 @@ services:
             - 'traefik.enable=true'
             # ROUTER
             - 'traefik.http.routers.traefik-router.entryPoints=websecure'
-            # TOBEMODIFIED: DOMAIN NAME FOR TRAEFIK DASHBOARD
-            - 'traefik.http.routers.traefik-router.rule=Host(`TOBEMODIFIED`)'
+            - 'traefik.http.routers.traefik-router.rule=Host(`TOBEMODIFIED`)' # TOBEMODIFIED: DOMAIN NAME FOR TRAEFIK DASHBOARD
             - 'traefik.http.routers.traefik-router.tls=true'
             # MIDDLEWARE
             - 'traefik.http.routers.traefik-router.middlewares=traefik-middleware@docker'
-            - 'traefik.http.middlewares.traefik-middleware.basicauth.usersFile=/auth/traefik.password'
+            - 'traefik.http.middlewares.traefik-middleware.basicauth.usersFile=/auth/traefik.password' # TOBEMODIFIED: PATH TO TRAEFIK PASSWORD FILE OR PASS THE DEFAULT
             # SERVICE
             - 'traefik.http.routers.traefik-router.service=api@internal'
             - 'traefik.http.services.traefik-service.loadbalancer.server.port=8080'
