@@ -1,4 +1,4 @@
-# traefik v0.1.10
+# traefik v0.1.11
 
 Category of official image / infrastructure service / first party app
 
@@ -25,13 +25,13 @@ replace supre needs:
 generate password auth for initial user:
 
 ```bash
-$ htpasswd -Bc registry.password username
+$ htpasswd -Bc traefik.password username
 ```
 
 generate password auth for next user:
 
 ```bash
-$ htpasswd -B registry.password username
+$ htpasswd -B traefik.password username
 ```
 
 other:
