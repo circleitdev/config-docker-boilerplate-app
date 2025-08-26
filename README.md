@@ -1,4 +1,4 @@
-# config-docker-boilerplate-app v0.1.10
+# config-docker-boilerplate-app v0.1.11
 
 ## Introduction
 
