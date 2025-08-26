@@ -9,8 +9,8 @@ services:
             - ./certs:/certs:ro
             - ./dynamic:/dynamic:ro
             - ./auth:/auth:ro
-            - traefik-letsencrypt:/etc/traefik/letsencrypt
-            - traefik-logs:/var/log/traefik
+            - letsencrypt-traefik-data:/etc/traefik/letsencrypt
+            - logs-traefik-data:/var/log/traefik
         networks:
             - traefik-network
         ports:
@@ -64,10 +64,10 @@ services:
             start_period: 5s
 
 volumes:
-    traefik-letsencrypt:
-        name: traefik-letsencrypt
-    traefik-logs:
-        name: traefik-logs
+    letsencrypt-traefik-data:
+        name: letsencrypt-traefik-data
+    logs-traefik-data:
+        name: logs-traefik-data
 
 networks:
     traefik-network:
