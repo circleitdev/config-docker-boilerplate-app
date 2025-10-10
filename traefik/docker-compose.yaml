@@ -1,4 +1,4 @@
-services:
+app:
     traefik:
         image: traefik:3.5.0
         container_name: traefik
@@ -37,9 +37,9 @@ services:
             - '--accessLog.filepath=/logs/access.log'
             - '--accessLog.filters.statusCodes=400-599'
             - '--ping=true'
-            # TOBEMODIFIED: CHOOSE DEVELOPMENT/ENABLE THIS PRODUCTION PURPOSE ONLY, EMAIL
+            # TOBEMODIFIED: CHOOSE DEVELOPMENT/ENABLE THIS PRODUCTION PURPOSE ONLY
             - '--entryPoints.websecure.http.tls.certResolver=leResolver'
-            - '--certificatesResolvers.leResolver.acme.email=TOBEMODIFIED'
+            - '--certificatesResolvers.leResolver.acme.email=${LE_SSL_EMAIL}'
             - '--certificatesResolvers.leResolver.acme.storage=/etc/traefik/letsencrypt/acme.json'
             - '--certificatesResolvers.leResolver.acme.httpChallenge.entryPoint=web'
 
@@ -47,7 +47,7 @@ services:
             - 'traefik.enable=true'
             # ROUTER
             - 'traefik.http.routers.traefik-router.entryPoints=websecure'
-            - 'traefik.http.routers.traefik-router.rule=Host(`TOBEMODIFIED`)' # TOBEMODIFIED: DOMAIN NAME FOR TRAEFIK DASHBOARD
+            - 'traefik.http.routers.traefik-router.rule=Host(`${TRAEFIK_HOST}`)' # TOBEMODIFIED: DOMAIN NAME FOR TRAEFIK DASHBOARD
             - 'traefik.http.routers.traefik-router.tls=true'
             # MIDDLEWARE
             - 'traefik.http.routers.traefik-router.middlewares=traefik-middleware@docker'
