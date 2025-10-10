@@ -1,4 +1,4 @@
-# traefik v0.1.11
+# traefik
 
 Category of official image / infrastructure service / first party app
 
