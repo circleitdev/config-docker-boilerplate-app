@@ -1,6 +1,6 @@
-app:
+services:
     traefik:
-        image: traefik:3.5.0
+        image: traefik:3.6.1
         container_name: traefik
         security_opt:
             - no-new-privileges:true
