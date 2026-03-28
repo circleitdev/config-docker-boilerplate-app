@@ -1,0 +1,6 @@
+docker-compose.yaml
+*.*ignore
+*.example
+*.md
+.env*
+*.git*
