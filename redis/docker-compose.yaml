@@ -1,0 +1,22 @@
+services:
+    app:
+        image: redis:8.6.2
+        container_name: redis
+        security_opt:
+            - no-new-privileges:true
+        networks:
+            - redis-network
+        env_file: .env
+        restart: unless-stopped
+        command: ['redis-server']
+        init: true
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+networks:
+    redis-network:
+        name: redis-network
