@@ -1,5 +1,5 @@
 services:
-    traefik:
+    app:
         image: traefik:3.6.1
         container_name: traefik
         security_opt:
