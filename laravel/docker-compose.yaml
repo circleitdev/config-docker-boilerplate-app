@@ -1,0 +1,78 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: ./docker/nginx/Dockerfile
+        image: laravel:0.1.0
+        pull_policy: build
+        security_opt:
+            - no-new-privileges:true
+        volumes:
+            - laravel-public-data:/var/www/public/build:ro
+            - laravel-storage-data:/var/www/storage:ro
+        networks:
+            - traefik-network
+            - postgres-network
+            - laravel-network
+        env_file: .env
+        restart: unless-stopped
+        labels:
+            - 'traefik.enable=true'
+
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.entryPoints=websecure'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.rule=${TRAEFIK_HOST}'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls=true'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls.certresolver=leResolver'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.service=${TRAEFIK_SERVICE}@docker'
+            - 'traefik.http.services.${TRAEFIK_SERVICE}.loadbalancer.server.port=80'
+
+            - 'traefik.docker.network=traefik-network'
+        init: true
+        depends_on:
+            php-fpm:
+                condition: service_healthy
+        healthcheck:
+            test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:80 >/dev/null 2>&1 || exit 1']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+    php-fpm:
+        build:
+            context: .
+            dockerfile: ./docker/php-fpm/Dockerfile
+        image: laravel-php-fpm:0.1.0
+        pull_policy: build
+        security_opt:
+            - no-new-privileges:true
+        volumes:
+            - laravel-public-data:/var/www/public/build
+            - laravel-storage-data:/var/www/storage
+        networks:
+            - postgres-network
+            - laravel-network
+        env_file: .env
+        restart: unless-stopped
+        healthcheck:
+            test: ['CMD-SHELL', 'php-fpm-healthcheck || exit 1']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+volumes:
+    laravel-public-data:
+        name: laravel-public-data
+    laravel-storage-data:
+        name: laravel-storage-data
+
+networks:
+    traefik-network:
+        name: traefik-network
+        external: true
+    postgres-network:
+        name: postgres-network
+        external: true
+    laravel-network:
+        name: laravel-network
