@@ -31,6 +31,8 @@ RUN curl -sS https://getcomposer.org/installer | php --  --version=2.8.5 --insta
 
 FROM php:8.4.19-fpm
 
+RUN groupadd -r circleit && useradd -r -u 1001 -g circleit -s /usr/sbin/nologin circleit
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     libicu-dev \
@@ -60,11 +62,11 @@ COPY --from=builder /var/www /var/www
 
 WORKDIR /var/www
 
-RUN chown -R www-data:www-data /var/www
+RUN chown -R circleit:circleit /var/www
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 EXPOSE 9000
 
-USER www-data
+USER circleit
 CMD ["php-fpm"]

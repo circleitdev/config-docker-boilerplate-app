@@ -26,11 +26,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN curl -sS https://getcomposer.org/installer | php --  --version=2.8.5 --install-dir=/usr/local/bin --filename=composer
 
-RUN curl -L https://github.com/oven-sh/bun/releases/download/bun-v1.3.9/bun-linux-x64.zip -o bun.zip \
-    && unzip bun.zip \
-    && mv bun-linux-x64/bun /usr/local/bin/bun \
-    && chmod +x /usr/local/bin/bun \
-    && rm -rf bun.zip bun-linux-x64
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.9"
+
+ENV PATH="/root/.bun/bin:$PATH"
 
 WORKDIR /var/www
 
@@ -42,6 +40,8 @@ RUN bun install && bun run build
 
 FROM nginx:1.28.3-alpine
 
+RUN addgroup -S circleit && adduser -S -u 1001 -G circleit circleit
+
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY --from=builder /var/www/public /var/www/public
@@ -49,10 +49,10 @@ COPY --from=builder /var/www/public /var/www/public
 WORKDIR /var/www/public
 
 RUN touch /var/run/nginx.pid \
-    && chown -R nginx:nginx /var/run/nginx.pid \
-    && chown -R nginx:nginx /var/cache/nginx
+    && chown -R circleit:circleit /var/run/nginx.pid \
+    && chown -R circleit:circleit /var/cache/nginx
 
 EXPOSE 80
 
-USER nginx
+USER circleit
 CMD ["nginx", "-g", "daemon off;"]
