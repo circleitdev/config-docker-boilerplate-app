@@ -42,8 +42,6 @@ RUN bun install && bun run build
 
 FROM nginx:1.28.3-alpine
 
-RUN addgroup -S nginx && adduser -S -u 1001 -G nginx nginx
-
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY --from=builder /var/www/public /var/www/public

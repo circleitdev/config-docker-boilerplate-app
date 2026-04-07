@@ -3,7 +3,7 @@ services:
         build:
             context: .
             dockerfile: ./docker/nginx/Dockerfile
-        image: laravel:0.1.0
+        image: laravel:0.1.1
         pull_policy: build
         security_opt:
             - no-new-privileges:true
