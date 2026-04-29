@@ -4,6 +4,8 @@ docker-compose.yaml
 *.md
 .env*
 *.git*
+/public/build
+/bootstrap/cache/*.php
 
 # Include any files or directories that you don't want to be copied to your
 # container here (e.g., local build artifacts, temporary files, etc.).

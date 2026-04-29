@@ -1,19 +1,17 @@
 services:
-    app:
+    citlaravel-nginx:
         build:
             context: .
             dockerfile: ./docker/nginx/Dockerfile
-        image: laravel:0.1.1
+        image: citlaravel-nginx:0.2.0
         pull_policy: build
         security_opt:
             - no-new-privileges:true
         volumes:
-            - laravel-public-data:/var/www/public/build:ro
-            - laravel-storage-data:/var/www/storage:ro
+            - citlaravel-storage-data:/var/www/storage:ro
         networks:
             - traefik-network
-            - postgres-network
-            - laravel-network
+            - citlaravel-network
         env_file: .env
         restart: unless-stopped
         labels:
@@ -29,7 +27,7 @@ services:
             - 'traefik.docker.network=traefik-network'
         init: true
         depends_on:
-            php-fpm:
+            citlaravel-php:
                 condition: service_healthy
         healthcheck:
             test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:80 >/dev/null 2>&1 || exit 1']
@@ -38,20 +36,20 @@ services:
             retries: 3
             start_period: 5s
 
-    php-fpm:
+    citlaravel-php:
         build:
             context: .
-            dockerfile: ./docker/php-fpm/Dockerfile
-        image: laravel-php-fpm:0.1.0
+            dockerfile: ./docker/php/Dockerfile
+        image: citlaravel-php:0.2.0
         pull_policy: build
         security_opt:
             - no-new-privileges:true
         volumes:
-            - laravel-public-data:/var/www/public/build
-            - laravel-storage-data:/var/www/storage
+            - citlaravel-storage-data:/var/www/storage
         networks:
-            - postgres-network
-            - laravel-network
+            - citlaravel-postgres-network
+            - citlaravel-redis-network
+            - citlaravel-network
         env_file: .env
         restart: unless-stopped
         healthcheck:
@@ -62,17 +60,18 @@ services:
             start_period: 5s
 
 volumes:
-    laravel-public-data:
-        name: laravel-public-data
-    laravel-storage-data:
-        name: laravel-storage-data
+    citlaravel-storage-data:
+        name: citlaravel-storage-data
 
 networks:
     traefik-network:
         name: traefik-network
         external: true
-    postgres-network:
-        name: postgres-network
+    citlaravel-postgres-network:
+        name: citlaravel-postgres-network
         external: true
-    laravel-network:
-        name: laravel-network
+    citlaravel-redis-network:
+        name: citlaravel-redis-network
+        external: true
+    citlaravel-network:
+        name: citlaravel-network
