@@ -1,4 +1,4 @@
-FROM php:8.4.19-fpm-alpine AS builder
+FROM php:8.4.21-fpm-alpine AS builder
 
 RUN apk add --no-cache bash curl git unzip icu-dev libzip-dev oniguruma-dev
 

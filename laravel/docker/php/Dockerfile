@@ -1,4 +1,4 @@
-FROM php:8.4.19-fpm-alpine AS builder
+FROM php:8.4.21-fpm-alpine AS builder
 
 RUN apk add --no-cache bash curl git unzip icu-dev libzip-dev oniguruma-dev
 
@@ -20,7 +20,7 @@ COPY ./ ./
 RUN composer run-script post-autoload-dump
 RUN bun run build:ssr
 
-FROM php:8.4.19-fpm-alpine
+FROM php:8.4.21-fpm-alpine
 
 RUN addgroup -S circleit && adduser -S -u 1001 -G circleit circleit
 
