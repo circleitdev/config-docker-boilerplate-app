@@ -1,17 +1,17 @@
 services:
-    citpostgres:
-        image: postgres:16
-        container_name: citpostgres
+    postgres:
+        image: postgres:17
+        container_name: postgres
         security_opt:
             - no-new-privileges:true
         volumes:
-            - citpostgres-data:/var/lib/postgresql/data
+            - postgres-data:/var/lib/postgresql/data
             - ./backups/init.sql:/docker-entrypoint-initdb.d/init.sql
             - /etc/localtime:/etc/localtime:ro
             - /etc/timezone:/etc/timezone:ro
             - ./backups:/backups
         networks:
-            - citpostgres-network
+            - postgres-network
         env_file: .env
         restart: unless-stopped
         command: ['postgres']
@@ -24,9 +24,9 @@ services:
             start_period: 5s
 
 volumes:
-    citpostgres-data:
-        name: citpostgres-data
+    postgres-data:
+        name: postgres-data
 
 networks:
-    citpostgres-network:
-        name: citpostgres-network
+    postgres-network:
+        name: postgres-network
