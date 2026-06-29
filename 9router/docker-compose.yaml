@@ -1,0 +1,35 @@
+services:
+    9router:
+        image: decolua/9router:0.5.4
+        container_name: 9router
+        security_opt:
+            - no-new-privileges:true
+        volumes:
+            - $HOME/.9router:/app/data
+        networks:
+            - traefik-network
+        env_file: .env
+        restart: unless-stopped
+        labels:
+            - 'traefik.enable=true'
+
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.entryPoints=websecure'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.rule=${TRAEFIK_HOST}'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls=true'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls.certresolver=leResolver'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.service=${TRAEFIK_SERVICE}@docker'
+            - 'traefik.http.services.${TRAEFIK_SERVICE}.loadbalancer.server.port=20128'
+
+            - 'traefik.docker.network=traefik-network'
+        init: true
+        healthcheck:
+            test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:20128 >/dev/null 2>&1 || exit 1']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+networks:
+    traefik-network:
+        name: traefik-network
+        external: true
