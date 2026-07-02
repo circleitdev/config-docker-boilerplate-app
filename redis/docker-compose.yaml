@@ -1,11 +1,11 @@
 services:
-    redis:
+    cit-redis:
         image: redis:8.6.2
-        container_name: redis
+        container_name: cit-redis
         security_opt:
             - no-new-privileges:true
         networks:
-            - redis-network
+            - cit-redis-network
         env_file: .env
         restart: unless-stopped
         command: ['redis-server']
@@ -18,5 +18,5 @@ services:
             start_period: 5s
 
 networks:
-    redis-network:
-        name: redis-network
+    cit-redis-network:
+        name: cit-redis-network
