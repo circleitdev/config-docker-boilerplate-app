@@ -38,7 +38,6 @@ services:
             - '--accessLog.filters.statusCodes=400-599'
             - '--ping=true'
             # TOBEMODIFIED: CHOOSE DEVELOPMENT/ENABLE THIS PRODUCTION PURPOSE ONLY
-            - '--entryPoints.websecure.http.tls.certResolver=leResolver'
             - '--certificatesResolvers.leResolver.acme.email=${LE_SSL_EMAIL}'
             - '--certificatesResolvers.leResolver.acme.storage=/etc/traefik/letsencrypt/acme.json'
             - '--certificatesResolvers.leResolver.acme.httpChallenge.entryPoint=web'
@@ -49,12 +48,15 @@ services:
             - 'traefik.http.routers.traefik-router.entryPoints=websecure'
             - 'traefik.http.routers.traefik-router.rule=Host(`${TRAEFIK_HOST}`)' # TOBEMODIFIED: DOMAIN NAME FOR TRAEFIK DASHBOARD
             - 'traefik.http.routers.traefik-router.tls=true'
+            - 'traefik.http.routers.traefik-router.tls.certresolver=leResolver'
             # MIDDLEWARE
             - 'traefik.http.routers.traefik-router.middlewares=traefik-middleware@docker'
             - 'traefik.http.middlewares.traefik-middleware.basicauth.usersFile=/auth/traefik.password' # TOBEMODIFIED: PATH TO TRAEFIK PASSWORD FILE OR PASS THE DEFAULT
             # SERVICE
             - 'traefik.http.routers.traefik-router.service=api@internal'
             - 'traefik.http.services.traefik-service.loadbalancer.server.port=8080'
+            # NETWORK
+            - 'traefik.docker.network=traefik-network'
         healthcheck:
             test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/ping >/dev/null 2>&1 || exit 1']
             interval: 30s
