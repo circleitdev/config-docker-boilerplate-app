@@ -1,7 +1,7 @@
 services:
-    app:
+    cit-traefik:
         image: traefik:3.6.1
-        container_name: traefik
+        container_name: cit-traefik
         security_opt:
             - no-new-privileges:true
         volumes:
@@ -9,8 +9,8 @@ services:
             - ./certs:/certs:ro
             - ./dynamic:/dynamic:ro
             - ./auth:/auth:ro
-            - letsencrypt-traefik-data:/etc/traefik/letsencrypt
-            - logs-traefik-data:/var/log/traefik
+            - traefik-letsencrypt-data:/etc/traefik/letsencrypt
+            - traefik-log-data:/var/log/traefik
         networks:
             - traefik-network
         ports:
@@ -65,10 +65,10 @@ services:
             start_period: 5s
 
 volumes:
-    letsencrypt-traefik-data:
-        name: letsencrypt-traefik-data
-    logs-traefik-data:
-        name: logs-traefik-data
+    traefik-letsencrypt-data:
+        name: traefik-letsencrypt-data
+    traefik-log-data:
+        name: traefik-log-data
 
 networks:
     traefik-network:
