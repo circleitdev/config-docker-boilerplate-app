@@ -50,8 +50,11 @@ services:
             - 'traefik.http.routers.traefik-router.tls=true'
             - 'traefik.http.routers.traefik-router.tls.certresolver=leResolver'
             # MIDDLEWARE
-            - 'traefik.http.routers.traefik-router.middlewares=traefik-middleware@docker'
-            - 'traefik.http.middlewares.traefik-middleware.basicauth.usersFile=/auth/traefik.password' # TOBEMODIFIED: PATH TO TRAEFIK PASSWORD FILE OR PASS THE DEFAULT
+            - 'traefik.http.routers.traefik-router.middlewares=traefik-auth@docker'
+            - 'traefik.http.middlewares.traefik-auth.basicauth.usersFile=/auth/traefik.password' # TOBEMODIFIED: PATH TO TRAEFIK PASSWORD FILE OR PASS THE DEFAULT
+            - 'traefik.http.middlewares.redirect-www-to-nonwww.redirectregex.regex=^https://www\.(.*)'
+            - 'traefik.http.middlewares.redirect-www-to-nonwww.redirectregex.replacement=https://$${1}'
+            - 'traefik.http.middlewares.redirect-www-to-nonwww.redirectregex.permanent=true'
             # SERVICE
             - 'traefik.http.routers.traefik-router.service=api@internal'
             - 'traefik.http.services.traefik-service.loadbalancer.server.port=8080'
