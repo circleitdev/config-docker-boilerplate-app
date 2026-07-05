@@ -21,7 +21,7 @@ services:
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls=true'
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls.certresolver=leResolver'
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.service=${TRAEFIK_SERVICE}@docker'
-            - 'traefik.http.services.${TRAEFIK_SERVICE}.loadbalancer.server.port=20128'
+            - 'traefik.http.services.${TRAEFIK_SERVICE}.loadbalancer.server.port=3000'
 
             - 'traefik.docker.network=traefik-network'
         init: true
