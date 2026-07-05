@@ -4,14 +4,13 @@ services:
         container_name: cit-redis
         security_opt:
             - no-new-privileges:true
+        volumes:
+            - cit-redis-data:/data
         networks:
             - cit-redis-network
         env_file: .env
         restart: unless-stopped
-        command:
-            - redis-server
-            - --requirepass
-            - ${REDIS_HOST_PASSWORD}
+        command: ['sh', '-c', 'redis-server --requirepass "${REDIS_HOST_PASSWORD}"']
         init: true
         healthcheck:
             test: ['CMD', 'redis-cli', '-a', '${REDIS_HOST_PASSWORD}', 'ping']
@@ -19,6 +18,10 @@ services:
             timeout: 5s
             retries: 3
             start_period: 5s
+
+volumes:
+    cit-redis-data:
+        name: cit-redis-data
 
 networks:
     cit-redis-network:
