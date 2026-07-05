@@ -3,15 +3,15 @@ services:
         build:
             context: .
             dockerfile: ./docker/nginx/Dockerfile
-        image: laravel-type-nginx:13.0
+        image: cit-type-nginx:13.0
         pull_policy: build
         security_opt:
             - no-new-privileges:true
         volumes:
-            - laravel-storage-data:/var/www/storage:ro
+            - cit-laravel-storage-data:/var/www/storage:ro
         networks:
             - traefik-network
-            - laravel-type-network
+            - cit-network
         env_file: .env
         restart: unless-stopped
         labels:
@@ -40,16 +40,16 @@ services:
         build:
             context: .
             dockerfile: ./docker/php/Dockerfile
-        image: laravel-type-php:13.0
+        image: cit-type-php:13.0
         pull_policy: build
         security_opt:
             - no-new-privileges:true
         volumes:
-            - laravel-storage-data:/var/www/storage
+            - cit-laravel-storage-data:/var/www/storage
         networks:
-            - laravel-postgres-network
-            - laravel-redis-network
-            - laravel-type-network
+            - cit-postgres-network
+            - cit-redis-network
+            - cit-network
         env_file: .env
         restart: unless-stopped
         init: true
@@ -61,18 +61,18 @@ services:
             start_period: 5s
 
 volumes:
-    laravel-storage-data:
-        name: laravel-storage-data
+    cit-laravel-storage-data:
+        name: cit-laravel-storage-data
 
 networks:
     traefik-network:
         name: traefik-network
         external: true
-    laravel-postgres-network:
-        name: laravel-postgres-network
+    cit-postgres-network:
+        name: cit-postgres-network
         external: true
-    laravel-redis-network:
-        name: laravel-redis-network
+    cit-redis-network:
+        name: cit-redis-network
         external: true
-    laravel-type-network:
-        name: laravel-type-network
+    cit-network:
+        name: cit-network
