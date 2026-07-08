@@ -1,0 +1,32 @@
+services:
+    cit-mysql:
+        image: mysql:8.4.10
+        container_name: cit-mysql
+        security_opt:
+            - no-new-privileges:true
+        volumes:
+            - cit-mysql-data:/var/lib/mysql
+            - ./backups/init.sql:/docker-entrypoint-initdb.d/init.sql
+            - /etc/localtime:/etc/localtime:ro
+            - /etc/timezone:/etc/timezone:ro
+            - ./backups:/backups
+        networks:
+            - cit-mysql-network
+        env_file: .env
+        restart: unless-stopped
+        command: ['mysqld', '--default-time-zone=${TZ}']
+        init: true
+        healthcheck:
+            test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u root --password="$$MYSQL_ROOT_PASSWORD" --silent']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+volumes:
+    cit-mysql-data:
+        name: cit-mysql-data
+
+networks:
+    cit-mysql-network:
+        name: cit-mysql-network
