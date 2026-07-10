@@ -46,6 +46,7 @@ services:
             - no-new-privileges:true
         volumes:
             - cit-laravel-storage-data:/var/www/storage
+            - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
         networks:
             - cit-postgres-network
             - cit-redis-network
