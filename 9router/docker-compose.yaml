@@ -8,6 +8,7 @@ services:
             - $HOME/.9router:/app/data
         networks:
             - traefik-network
+            - cit-headroom-network
         env_file: .env
         restart: unless-stopped
         labels:
@@ -32,4 +33,7 @@ services:
 networks:
     traefik-network:
         name: traefik-network
+        external: true
+    cit-headroom-network:
+        name: cit-headroom-network
         external: true

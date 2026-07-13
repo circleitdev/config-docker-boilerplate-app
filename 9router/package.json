@@ -1,6 +1,6 @@
 {
 	"scripts": {
 		"up": "docker compose up --build --detach",
-		"down": "docker compose -p 9router down"
+		"down": "docker compose down"
 	}
 }
