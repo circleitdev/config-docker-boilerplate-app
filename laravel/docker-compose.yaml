@@ -14,6 +14,7 @@ services:
             - cit-network
         env_file: .env
         restart: unless-stopped
+        command: ["nginx", "-g", "daemon off;"]
         labels:
             - 'traefik.enable=true'
 
@@ -30,7 +31,7 @@ services:
             php:
                 condition: service_healthy
         healthcheck:
-            test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:80 >/dev/null 2>&1 || exit 1']
+            test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80 >/dev/null 2>&1 || exit 1"]
             interval: 30s
             timeout: 5s
             retries: 3
@@ -52,10 +53,69 @@ services:
             - cit-redis-network
             - cit-network
         env_file: .env
+        environment:
+            CONTAINER_ROLE: php
         restart: unless-stopped
+        command: ["php-fpm"]
         init: true
         healthcheck:
-            test: ['CMD-SHELL', 'php-fpm-healthcheck || exit 1']
+            test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+    scheduler:
+        image: cit-type-php:13.0
+        pull_policy: never
+        security_opt:
+            - no-new-privileges:true
+        volumes:
+            - cit-laravel-storage-data:/var/www/storage
+            - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+        networks:
+            - cit-postgres-network
+            - cit-redis-network
+            - cit-network
+        env_file: .env
+        environment:
+            CONTAINER_ROLE: scheduler
+        restart: unless-stopped
+        command: ["php", "artisan", "schedule:work"]
+        init: true
+        depends_on:
+            php:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD-SHELL", "pgrep -f 'php artisan schedule:work' >/dev/null || exit 1"]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+    worker:
+        image: cit-type-php:13.0
+        pull_policy: never
+        security_opt:
+            - no-new-privileges:true
+        volumes:
+            - cit-laravel-storage-data:/var/www/storage
+            - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+        networks:
+            - cit-postgres-network
+            - cit-redis-network
+            - cit-network
+        env_file: .env
+        environment:
+            CONTAINER_ROLE: worker
+        restart: unless-stopped
+        command: ["php", "artisan", "queue:work", "redis", "--verbose", "--tries=3", "--timeout=90"]
+        init: true
+        depends_on:
+            php:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD-SHELL", "pgrep -f 'php artisan queue:work' >/dev/null || exit 1"]
             interval: 30s
             timeout: 5s
             retries: 3

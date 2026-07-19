@@ -34,7 +34,7 @@ RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev libzip-dev pos
 RUN curl -o /usr/local/bin/php-fpm-healthcheck https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
     && chmod +x /usr/local/bin/php-fpm-healthcheck
 
-COPY ./docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY ./docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
