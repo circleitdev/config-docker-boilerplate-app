@@ -41,7 +41,7 @@ services:
             - '--certificatesResolvers.leResolver.acme.email=${LE_SSL_EMAIL}'
             - '--certificatesResolvers.leResolver.acme.storage=/etc/traefik/letsencrypt/acme.json'
             - '--certificatesResolvers.leResolver.acme.httpChallenge.entryPoint=web'
-
+        init: true
         labels:
             - 'traefik.enable=true'
             # ROUTER
