@@ -11,7 +11,7 @@ services:
             - cit-laravel-storage-data:/var/www/storage:ro
         networks:
             - traefik-network
-            - cit-network
+            - cit-type-network
         env_file: .env
         restart: unless-stopped
         command: ["nginx", "-g", "daemon off;"]
@@ -51,7 +51,7 @@ services:
         networks:
             - cit-postgres-network
             - cit-redis-network
-            - cit-network
+            - cit-type-network
         env_file: .env
         environment:
             CONTAINER_ROLE: php
@@ -76,7 +76,7 @@ services:
         networks:
             - cit-postgres-network
             - cit-redis-network
-            - cit-network
+            - cit-type-network
         env_file: .env
         environment:
             CONTAINER_ROLE: scheduler
@@ -104,7 +104,7 @@ services:
         networks:
             - cit-postgres-network
             - cit-redis-network
-            - cit-network
+            - cit-type-network
         env_file: .env
         environment:
             CONTAINER_ROLE: worker
@@ -135,5 +135,5 @@ networks:
     cit-redis-network:
         name: cit-redis-network
         external: true
-    cit-network:
-        name: cit-network
+    cit-type-network:
+        name: cit-type-network

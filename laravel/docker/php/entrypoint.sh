@@ -15,7 +15,6 @@ case "$ROLE" in
     php)
         echo "starting php bootstrap..."
         php artisan migrate --force
-
         php artisan optimize:clear
         ;;
     scheduler)
