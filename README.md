@@ -17,3 +17,4 @@ list project:
 6. mysql
 7. headroom
 8. chatwoot
+9. n8n
