@@ -1,0 +1,47 @@
+services:
+    cit-n8n:
+        image: n8nio/n8n:1.118.2
+        container_name: cit-n8n
+        security_opt:
+            - no-new-privileges:true
+        volumes:
+            - cit-n8n-app-data:/home/node/.n8n
+            - ./files:/files
+        networks:
+            - traefik-network
+        env_file: .env
+        restart: unless-stopped
+        labels:
+            - traefik.enable=true
+
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.entryPoints=websecure'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.rule=${TRAEFIK_HOST}'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls=true'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls.certResolver=leResolver'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.middlewares=${TRAEFIK_MIDDLEWARE}@docker'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.STSSeconds=315360000'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.browserXSSFilter=true'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.contentTypeNosniff=true'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.forceSTSHeader=true'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.SSLHost=${N8N_HOST}'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.STSIncludeSubdomains=true'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.STSPreload=true'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.service=${TRAEFIK_SERVICE}@docker'
+            - 'traefik.http.services.${TRAEFIK_SERVICE}.loadbalancer.server.port=${N8N_PORT}'
+
+            - 'traefik.docker.network=traefik-network'
+        healthcheck:
+            test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:5678 >/dev/null 2>&1 || exit 1']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+volumes:
+    cit-n8n-app-data:
+        name: cit-n8n-app-data
+
+networks:
+    traefik-network:
+        name: traefik-network
+        external: true
