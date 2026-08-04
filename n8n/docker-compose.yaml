@@ -1,29 +1,32 @@
 services:
     cit-n8n:
-        image: n8nio/n8n:1.118.2
+        image: n8nio/n8n:2.33.3
         container_name: cit-n8n
         security_opt:
             - no-new-privileges:true
         volumes:
-            - cit-n8n-app-data:/home/node/.n8n
+            - cit-n8n-data:/home/node/.n8n
             - ./files:/files
         networks:
             - traefik-network
+            - cit-n8n-network
         env_file: .env
         restart: unless-stopped
+        init: true
         labels:
-            - traefik.enable=true
+            - 'traefik.enable=true'
 
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.entryPoints=websecure'
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.rule=${TRAEFIK_HOST}'
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls=true'
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls.certResolver=leResolver'
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.middlewares=${TRAEFIK_MIDDLEWARE}@docker'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.SSLRedirect=true'
             - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.STSSeconds=315360000'
             - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.browserXSSFilter=true'
             - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.contentTypeNosniff=true'
             - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.forceSTSHeader=true'
-            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.SSLHost=${N8N_HOST}'
+            - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.SSLHost=${DOMAIN_NAME}'
             - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.STSIncludeSubdomains=true'
             - 'traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.headers.STSPreload=true'
             - 'traefik.http.routers.${TRAEFIK_ROUTER}.service=${TRAEFIK_SERVICE}@docker'
@@ -37,11 +40,37 @@ services:
             retries: 3
             start_period: 5s
 
+    cit-n8n-runners:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        image: cit-n8n-runners:2.33.3
+        container_name: cit-n8n-runners
+        pull_policy: build
+        security_opt:
+            - no-new-privileges:true
+        networks:
+            - cit-n8n-network
+        env_file: .env
+        restart: unless-stopped
+        init: true
+        depends_on:
+            cit-n8n:
+                condition: service_healthy
+        healthcheck:
+            test: ['CMD-SHELL', 'wget -qO- http://cit-n8n:5678 >/dev/null 2>&1 || exit 1']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
 volumes:
-    cit-n8n-app-data:
-        name: cit-n8n-app-data
+    cit-n8n-data:
+        name: cit-n8n-data
 
 networks:
+    cit-n8n-network:
+        name: cit-n8n-network
     traefik-network:
         name: traefik-network
         external: true
