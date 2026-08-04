@@ -1,6 +1,6 @@
 services:
     cit-9router:
-        image: decolua/9router:0.5.30
+        image: decolua/9router:0.5.45
         container_name: cit-9router
         security_opt:
             - no-new-privileges:true
