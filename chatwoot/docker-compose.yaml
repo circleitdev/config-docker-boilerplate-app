@@ -37,6 +37,8 @@ services:
         container_name: cit-chatwoot-sidekiq
         security_opt:
             - no-new-privileges:true
+        volumes:
+            - cit-chatwoot-storage-data:/app/storage
         networks:
             - cit-chatwoot-postgres-network
             - cit-chatwoot-redis-network
