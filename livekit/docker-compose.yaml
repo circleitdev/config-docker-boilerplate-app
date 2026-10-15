@@ -4,16 +4,23 @@ services:
         container_name: cit-livekit
         security_opt:
             - no-new-privileges:true
+        ulimits:
+            nofile:
+                soft: 65536
+                hard: 65536
         configs:
             - source: livekit
               target: /etc/livekit.yaml
         ports:
             - '${LIVEKIT_RTC_TCP_PORT:-7881}:${LIVEKIT_RTC_TCP_PORT:-7881}'
             - '${LIVEKIT_RTC_UDP_PORT:-7882}:${LIVEKIT_RTC_UDP_PORT:-7882}/udp'
+            - '${LIVEKIT_API_BIND:-127.0.0.1}:7880:7880'
         networks:
-            - traefik-network
-            - cit-redis-network
-            - cit-livekit-network
+            traefik-network: {}
+            cit-redis-network: {}
+            cit-livekit-network:
+                interface_name: rtc0
+                gw_priority: 1
         env_file: .env
         restart: unless-stopped
         command: ['--config', '/etc/livekit.yaml']
@@ -41,6 +48,10 @@ services:
         container_name: cit-livekit-ingress
         security_opt:
             - no-new-privileges:true
+        ulimits:
+            nofile:
+                soft: 65536
+                hard: 65536
         configs:
             - source: ingress
               target: /etc/ingress.yaml
@@ -83,12 +94,21 @@ configs:
                 udp_port: ${LIVEKIT_RTC_UDP_PORT:-7882}
                 use_external_ip: false
                 node_ip: ${LIVEKIT_NODE_IP}
+                interfaces:
+                    includes: ['rtc0']
             redis:
                 address: ${REDIS_HOST}
                 password: ${REDIS_PASSWORD}
                 db: ${REDIS_DB}
             keys:
                 ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+            turn:
+                enabled: ${LIVEKIT_TURN_ENABLED:-false}
+                domain: ${LIVEKIT_TURN_DOMAIN:-}
+                tls_port: 443
+                external_tls: true
+                proxy_protocol: true
+                proxy_protocol_trusted_cidrs: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']
             ingress:
                 rtmp_base_url: ${LIVEKIT_RTMP_BASE_URL}
                 whip_base_url: ${LIVEKIT_WHIP_BASE_URL:-}

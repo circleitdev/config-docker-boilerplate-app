@@ -1,0 +1,12 @@
+# OPTIONAL REDIS ON ANOTHER HOST (REDIS_HOST = PRIVATE IP, NO LOCAL REDIS NETWORK)
+services:
+    cit-livekit:
+        networks: !override
+            traefik-network: {}
+            cit-livekit-network:
+                interface_name: rtc0
+                gw_priority: 1
+    cit-livekit-ingress:
+        networks: !override
+            - traefik-network
+            - cit-livekit-network

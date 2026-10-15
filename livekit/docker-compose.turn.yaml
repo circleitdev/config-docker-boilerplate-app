@@ -1,0 +1,11 @@
+# OPTIONAL TURN/TLS ON 443 (TRAEFIK TERMINATES TLS, LIVEKIT GETS PROXY PROTOCOL)
+services:
+    cit-livekit:
+        labels:
+            - 'traefik.tcp.routers.${TRAEFIK_TURN_ROUTER}.entryPoints=websecure'
+            - 'traefik.tcp.routers.${TRAEFIK_TURN_ROUTER}.rule=HostSNI(`${LIVEKIT_TURN_DOMAIN}`)'
+            - 'traefik.tcp.routers.${TRAEFIK_TURN_ROUTER}.tls=true'
+            - 'traefik.tcp.routers.${TRAEFIK_TURN_ROUTER}.tls.certresolver=leResolver'
+            - 'traefik.tcp.routers.${TRAEFIK_TURN_ROUTER}.service=${TRAEFIK_TURN_SERVICE}'
+            - 'traefik.tcp.services.${TRAEFIK_TURN_SERVICE}.loadbalancer.server.port=443'
+            - 'traefik.tcp.services.${TRAEFIK_TURN_SERVICE}.loadbalancer.proxyProtocol.version=2'
