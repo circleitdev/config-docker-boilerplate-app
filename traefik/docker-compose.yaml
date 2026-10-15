@@ -25,6 +25,8 @@ services:
             - '--entryPoints.web.http.redirections.entryPoint.permanent=true'
             - '--entryPoints.websecure.address=:443'
             - '--entryPoints.websecure.http.tls=true'
+            - '--entryPoints.web.forwardedHeaders.trustedIPs=${CLOUDFLARE_TRUSTED_IPS:-127.0.0.1/32}'
+            - '--entryPoints.websecure.forwardedHeaders.trustedIPs=${CLOUDFLARE_TRUSTED_IPS:-127.0.0.1/32}'
             - '--providers.file.directory=/dynamic'
             - '--providers.docker=true'
             - '--providers.docker.exposedByDefault=false'
