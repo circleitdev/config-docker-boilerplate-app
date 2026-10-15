@@ -1,0 +1,111 @@
+services:
+    cit-livekit:
+        image: livekit/livekit-server:v1.13.9
+        container_name: cit-livekit
+        security_opt:
+            - no-new-privileges:true
+        configs:
+            - source: livekit
+              target: /etc/livekit.yaml
+        ports:
+            - '${LIVEKIT_RTC_TCP_PORT:-7881}:${LIVEKIT_RTC_TCP_PORT:-7881}'
+            - '${LIVEKIT_RTC_UDP_PORT:-7882}:${LIVEKIT_RTC_UDP_PORT:-7882}/udp'
+        networks:
+            - traefik-network
+            - cit-redis-network
+            - cit-livekit-network
+        env_file: .env
+        restart: unless-stopped
+        command: ['--config', '/etc/livekit.yaml']
+        labels:
+            - 'traefik.enable=true'
+
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.entryPoints=websecure'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.rule=${TRAEFIK_HOST}'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls=true'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.tls.certresolver=leResolver'
+            - 'traefik.http.routers.${TRAEFIK_ROUTER}.service=${TRAEFIK_SERVICE}@docker'
+            - 'traefik.http.services.${TRAEFIK_SERVICE}.loadbalancer.server.port=7880'
+
+            - 'traefik.docker.network=traefik-network'
+        init: true
+        healthcheck:
+            test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:7880 >/dev/null 2>&1 || exit 1']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+    cit-livekit-ingress:
+        image: livekit/ingress:v1.5.0
+        container_name: cit-livekit-ingress
+        security_opt:
+            - no-new-privileges:true
+        configs:
+            - source: ingress
+              target: /etc/ingress.yaml
+        networks:
+            - traefik-network
+            - cit-redis-network
+            - cit-livekit-network
+        env_file: .env
+        environment:
+            INGRESS_CONFIG_FILE: /etc/ingress.yaml
+        restart: unless-stopped
+        init: true
+        depends_on:
+            cit-livekit:
+                condition: service_healthy
+        healthcheck:
+            test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:9091 >/dev/null 2>&1 || exit 1']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+networks:
+    traefik-network:
+        name: traefik-network
+        external: true
+    cit-redis-network:
+        name: cit-redis-network
+        external: true
+    cit-livekit-network:
+        name: cit-livekit-network
+
+configs:
+    livekit:
+        content: |
+            port: 7880
+            bind_addresses: ["0.0.0.0"]
+            rtc:
+                tcp_port: ${LIVEKIT_RTC_TCP_PORT:-7881}
+                udp_port: ${LIVEKIT_RTC_UDP_PORT:-7882}
+                use_external_ip: false
+                node_ip: ${LIVEKIT_NODE_IP}
+            redis:
+                address: ${REDIS_HOST}
+                password: ${REDIS_PASSWORD}
+                db: ${REDIS_DB}
+            keys:
+                ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+            ingress:
+                rtmp_base_url: ${LIVEKIT_RTMP_BASE_URL}
+                whip_base_url: ${LIVEKIT_WHIP_BASE_URL:-}
+    ingress:
+        content: |
+            api_key: ${LIVEKIT_API_KEY}
+            api_secret: ${LIVEKIT_API_SECRET}
+            ws_url: ws://cit-livekit:7880
+            redis:
+                address: ${REDIS_HOST}
+                password: ${REDIS_PASSWORD}
+                db: ${REDIS_DB}
+            health_port: 9091
+            rtmp_port: 1935
+            whip_port: 8080
+            http_relay_port: 9090
+            rtc_config:
+                udp_port: ${LIVEKIT_INGRESS_UDP_PORT:-7885}
+                use_external_ip: false
+                node_ip: ${LIVEKIT_NODE_IP}
